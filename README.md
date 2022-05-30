@@ -21,7 +21,7 @@ docker run -ti --rm \
     --name pivpn \
     -v /home/docker/pivpn/ovpns:/home/pivpn/ovpns \
     -v /home/docker/pivpn/openvpn-data:/etc/openvpn \
-    xptsp/pivpn
+    dm2mf/pivpn
 ```
 Wait until you see `PiVPN Service Started`
 
@@ -33,7 +33,7 @@ version: '2.1'
 services:
   pivpn:
     container_name: pivpn
-    image: xptsp/pivpn
+    image: dm2mf/pivpn
     privileged: true
     network_mode: "host"
     volumes:
@@ -93,7 +93,7 @@ Asks you for the name of the client to revoke. Once you revoke a client, it will
 If you add more than a few clients, this gives you a nice list of their names and whether their certificate is still valid or has been revoked. Great way to keep track of what you did with 'pivpn add' and 'pivpn revoke'.
 
 ## Issues
-If you have any issues with this docker container, please open an issue over in the [GitHub repository](https://github.com/xptsp/pivpn-docker/issues) and I'll try to address the issue as soon as I am able.  Thanks for helping improve this docker container!
+If you have any issues with this docker container, please open an issue over in the [GitHub repository](https://github.com/2mf/pivpn-docker/issues) and I'll try to address the issue as soon as I am able.  Thanks for helping improve this docker container!
 
 ## Version History
 
