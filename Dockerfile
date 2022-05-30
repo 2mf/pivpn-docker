@@ -1,9 +1,35 @@
 # VERSION 1.0
 
-FROM phusion/baseimage:18.04-1.0.0
+FROM debian:bullseye-slim
 
-# Silence error:
-ENV DEBIAN_FRONTEND=noninteractive
+# Prepare silence error:
+ENV DEBIAN_FRONTEND=noninteractive \
+    LANG="en_US.UTF-8" \
+    LANGUAGE="en_US:en" \
+    LC_ALL="en_US.UTF-8"
+
+## Fix some issues with APT packages.
+## See https://github.com/dotcloud/docker/issues/1024
+RUN dpkg-divert --local --rename --add /sbin/initctl \
+    && ln -sf /bin/true /sbin/initctl
+
+## Replace the 'ischroot' tool to make it always return true.
+## Prevent initscripts updates from breaking /dev/shm.
+## https://journal.paul.querna.org/articles/2013/10/15/docker-ubuntu-on-rackspace/
+## https://bugs.launchpad.net/launchpad/+bug/974584
+RUN dpkg-divert --local --rename --add /usr/bin/ischroot \
+    && ln -sf /bin/true /usr/bin/ischroot
+
+RUN apt update \
+    && apt install -y apt-utils apt-transport-https ca-certificates locales locales-all curl less vim-tiny psmisc gpg-agent dirmngr \
+    && apt clean \
+    && rm -rf /tmp/* /var/tmp/* \
+    && rm -rf /var/lib/apt/lists/* \
+    && find / -mount -name *.pyc -delete \
+    && find / -mount -name *__pycache__* -delete
+
+RUN locale-gen en_US \
+    && update-locale LANG=en_US.UTF-8 LC_CTYPE=en_US.UTF-8
 
 # Set as env so that it can also be used in the run script during the execution.
 ENV install_user=pivpn
@@ -21,8 +47,8 @@ ARG setupVars=/etc/pivpn/setupVars.conf
 #=============================================================================================================================
 # Install the PiVPN prerequisites, then pull the PiVPN repo.  Also create a "cls" clone of the "clear" command...
 #=============================================================================================================================
-RUN apt-get update && apt-get install -y --no-install-recommends iproute2 git dhcpcd5 nano telnet lighttpd ca-certificates \
-		iptables-persistent bsdmainutils net-tools whiptail dnsutils grep wget tar net-tools openvpn expect curl sudo grepcidr \
+RUN apt update && apt install -y --no-install-recommends iproute2 git dhcpcd5 nano telnet lighttpd ca-certificates \
+		iptables-persistent bsdmainutils net-tools whiptail dnsutils grep wget tar net-tools openvpn expect curl sudo grepcidr psmisc procps \
 	&& git clone https://github.com/pivpn/pivpn.git "${pivpnFilesDir}" \
 	&& ln -sf /usr/bin/clear /usr/local/bin/cls
 

@@ -1,6 +1,4 @@
 #!/bin/bash
-OS=armv7hf
-[[ "$HOSTTYPE" == "x86_64" ]] && OS=amd64
 docker run --name pivpn -it --rm --privileged --net host \
 	-e pivpnWEB_PORT=49080 \
 	-e pivpnPORT=2194 \
@@ -10,4 +8,4 @@ docker run --name pivpn -it --rm --privileged --net host \
 	-v $PWD/html/index.py:/var/www/pivpn/index.py \
 	-v $PWD/run:/home/pivpn/run \
 	-v $PWD/read_certs:/usr/local/bin/read_certs \
-	xptsp/pivpn:${OS}-v2 $@
+	dm2mf/pivpn:debian-bullseye $@
